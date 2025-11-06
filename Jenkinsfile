@@ -21,35 +21,8 @@ pipeline {
             }
         }
 
-        stage('Build Backend - helloService') {
-            steps {
-                dir('backend/helloService') {
-                    echo '⚙️ Installing dependencies for helloService...'
-                    sh 'npm install'
-                }
-            }
-        }
 
-        stage('Build Backend - profileService') {
-            steps {
-                dir('backend/profileService') {
-                    echo '⚙️ Installing dependencies for profileService...'
-                    sh 'npm install'
-                }
-            }
-        }
-
-        stage('Build Frontend') {
-            steps {
-                dir('frontend') {
-                    echo '⚙️ Building frontend React app...'
-                    sh 'npm install'
-                    sh 'npm run build'
-                }
-            }
-        }
-
-        stage('Docker Build & Push') {
+        stage('Docker Build ') {
             steps {
                 script {
                     echo '🐳 Building Docker images...'
@@ -64,7 +37,15 @@ pipeline {
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_FRONTEND
                     '''
 
-                    echo '📤 Tagging & Pushing images...'
+                
+                }
+            }
+        }
+
+         stage('Docker Tag and Push') {
+            steps {
+                script {
+                        echo '📤 Tagging & Pushing images...'
                     sh '''
                     docker tag hello-service:latest $ECR_REPO_HELLO:latest
                     docker tag profile-service:latest $ECR_REPO_PROFILE:latest
@@ -76,7 +57,7 @@ pipeline {
                     '''
                 }
             }
-        }
+         }
 
         stage('Post-Build Cleanup') {
             steps {
