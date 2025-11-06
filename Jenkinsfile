@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        
         AWS_REGION = "ca-central-1"
         ECR_REGISTRY = "123456789012.dkr.ecr.ca-central-1.amazonaws.com"
         ECR_REPO_FRONTEND = "${ECR_REGISTRY}/ash/frontend"
