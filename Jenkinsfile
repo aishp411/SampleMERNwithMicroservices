@@ -4,7 +4,7 @@ pipeline {
     environment {
         // AWS / Docker credentials (if using ECR)
         AWS_REGION = "ca-central-1"
-        ECR_REPO_FRONTEND = "ash/frontend"
+        ECR_REPO_FRONTEND = "aws_account_id.dkr.ecr.ca-central-1.amazonaws.com/ash/frontend"
         ECR_REPO_HELLO = "your-ecr-repo/helloService"
         ECR_REPO_PROFILE = "your-ecr-repo/profileService"
     }
