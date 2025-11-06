@@ -7,7 +7,7 @@ For `helloService`, create `.env` file with the content:
 PORT=3001 
 ``` 
 
-For `profileService`, create `.env` file with the content:
+For `profileService`, create `.env` file with the  content:
 ```bash
 PORT=3002
 MONGO_URL="specifyYourMongoURLHereWithDatabaseNameInTheEnd"
