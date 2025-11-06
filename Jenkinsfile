@@ -1,66 +1,64 @@
 pipeline {
     agent any
-    
-    environment {
-        // AWS / Docker credentials (if using ECR)
-        AWS_REGION = "ca-central-1"
-        ECR_REPO_FRONTEND = "aws_account_id.dkr.ecr.ca-central-1.amazonaws.com/ash/frontend"
-        ECR_REPO_HELLO = "your-ecr-repo/helloService"
-        ECR_REPO_PROFILE = "your-ecr-repo/profileService"
-    }
 
-    triggers {
-        githubPush()   // 🔁 Auto-trigger when GitHub push happens
+    environment {
+        AWS_REGION = "ca-central-1"
+        ECR_REGISTRY = "123456789012.dkr.ecr.ca-central-1.amazonaws.com"
+        ECR_REPO_FRONTEND = "${ECR_REGISTRY}/ash/frontend"
+        ECR_REPO_HELLO = "${ECR_REGISTRY}/ash/helloService"
+        ECR_REPO_PROFILE = "${ECR_REGISTRY}/ash/profileService"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                echo '📥 Cloning repository...'
+                echo "📥 Checking out source code..."
                 checkout scm
             }
         }
 
-        stage('Docker Build ') {
+        stage('Build Docker Images') {
             steps {
-                script {
-                    echo '🐳 Building Docker images...'
-                    sh '''
-                    docker build -t hello-service:latest backend/helloService
-                    docker build -t profile-service:latest backend/profileService
-                    docker build -t frontend:latest frontend
-                    '''
+                echo "🐳 Building Docker images..."
+                sh '''
+                docker build -t hello-service:latest backend/helloService
+                docker build -t profile-service:latest backend/profileService
+                docker build -t frontend:latest frontend
+                '''
+            }
+        }
 
-                    echo '🔑 Logging in to AWS ECR...'
+        stage('Login to AWS ECR') {
+            steps {
+                echo "🔑 Logging in to AWS ECR..."
+                withCredentials([usernamePassword(credentialsId: 'aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     sh '''
-                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_FRONTEND
+                    aws ecr get-login-password --region $AWS_REGION | \
+                    docker login --username AWS --password-stdin $ECR_REGISTRY
                     '''
-
-                
                 }
             }
         }
 
-         stage('Docker Tag and Push') {
+        stage('Push Docker Images to ECR') {
             steps {
-                script {
-                        echo '📤 Tagging & Pushing images...'
-                    sh '''
-                    docker tag hello-service:latest $ECR_REPO_HELLO:latest
-                    docker tag profile-service:latest $ECR_REPO_PROFILE:latest
-                    docker tag frontend:latest $ECR_REPO_FRONTEND:latest
+                echo "📤 Tagging and pushing Docker images..."
+                sh '''
+                docker tag hello-service:latest $ECR_REPO_HELLO:latest
+                docker tag profile-service:latest $ECR_REPO_PROFILE:latest
+                docker tag frontend:latest $ECR_REPO_FRONTEND:latest
 
-                    docker push $ECR_REPO_HELLO:latest
-                    docker push $ECR_REPO_PROFILE:latest
-                    docker push $ECR_REPO_FRONTEND:latest
-                    '''
-                }
+                docker push $ECR_REPO_HELLO:latest
+                docker push $ECR_REPO_PROFILE:latest
+                docker push $ECR_REPO_FRONTEND:latest
+                '''
             }
-         }
+        }
 
         stage('Post-Build Cleanup') {
             steps {
-                echo '🧹 Cleaning up local Docker images...'
+                echo "🧹 Cleaning up local Docker images..."
                 sh 'docker system prune -f'
             }
         }
