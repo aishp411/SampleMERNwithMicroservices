@@ -1,6 +1,6 @@
 pipeline {
     agent any
-
+    
     environment {
         // AWS / Docker credentials (if using ECR)
         AWS_REGION = "ap-south-1"
