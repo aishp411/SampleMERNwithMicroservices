@@ -5,8 +5,8 @@ pipeline {
         AWS_REGION = "ca-central-1"
         ECR_REGISTRY = "123456789012.dkr.ecr.ca-central-1.amazonaws.com"
         ECR_REPO_FRONTEND = "${ECR_REGISTRY}/ash/frontend"
-        ECR_REPO_HELLO = "${ECR_REGISTRY}/ash/helloService"
-        ECR_REPO_PROFILE = "${ECR_REGISTRY}/ash/profileService"
+        ECR_REPO_HELLO = "${ECR_REGISTRY}/ash/helloservice"
+        ECR_REPO_PROFILE = "${ECR_REGISTRY}/ash/profileservice"
     }
 
     stages {
