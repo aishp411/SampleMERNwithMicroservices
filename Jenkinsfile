@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     environment {
-        
         AWS_REGION = "ca-central-1"
         ECR_REGISTRY = "975050024946.dkr.ecr.ca-central-1.amazonaws.com"
         ECR_REPO_FRONTEND = "${ECR_REGISTRY}/ash/frontend"
         ECR_REPO_HELLO = "${ECR_REGISTRY}/ash/helloservice"
         ECR_REPO_PROFILE = "${ECR_REGISTRY}/ash/profileservice"
+        NAMESPACE = "ash-mern"
     }
 
     stages {
@@ -25,7 +25,12 @@ pipeline {
                 sh '''
                 docker build -t hello-service:latest backend/helloService
                 docker build -t profile-service:latest backend/profileService
-                docker build -t frontend:latest frontend
+
+                # Build frontend with proper API endpoints for in-cluster services
+                docker build \
+                  --build-arg REACT_APP_HELLO_API=http://hello-service.${NAMESPACE}.svc.cluster.local:3001 \
+                  --build-arg REACT_APP_PROFILE_API=http://profile-service.${NAMESPACE}.svc.cluster.local:3002 \
+                  -t frontend:latest frontend
                 '''
             }
         }
