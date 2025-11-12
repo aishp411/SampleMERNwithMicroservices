@@ -30,8 +30,7 @@ pipeline {
                 docker build \
               --build-arg REACT_APP_HELLO_API=http://hello-service:3001 \
             --build-arg REACT_APP_PROFILE_API=http://profile-service:3002/api \
-
-                 -t frontend:latest frontend
+            -t frontend:latest frontend
                 '''
             }
         }
