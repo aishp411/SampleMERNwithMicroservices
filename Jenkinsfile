@@ -28,8 +28,9 @@ pipeline {
 
                 # Build frontend with proper API endpoints for in-cluster services
                 docker build \
-                  --build-arg REACT_APP_HELLO_API=/hello \
-                --build-arg REACT_APP_PROFILE_API=/api \
+              --build-arg REACT_APP_HELLO_API=http://hello-service:3001 \
+            --build-arg REACT_APP_PROFILE_API=http://profile-service:3002/api \
+
                  -t frontend:latest frontend
                 '''
             }
